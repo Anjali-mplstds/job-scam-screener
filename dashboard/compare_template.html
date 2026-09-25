@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laya vs Jev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F1F3F5;--card:#FFFFFF;--ink:#16202B;--muted:#5A6672;--line:#CBD3DA;
+--a:#2451D6;--a-bg:#EAF0FD;--b:#B3261E;--b-bg:#FBEAE8;--agree:#1F7A5A;--agree-bg:#E3F3EC;
+--font:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+.notice{background:#33414F;color:#fff;font-size:13px;padding:9px 16px;text-align:center}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 20px}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;min-width:150px}
+.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 2px;font-size:15px}
+.co{color:var(--muted);font-size:12px;margin-bottom:8px}
+.snip{font-size:13px;color:#2B3641;margin:0 0 12px;max-width:80ch}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col{border-radius:8px;padding:10px 12px;font-size:13px}
+.col.a{background:var(--a-bg)}.col.b{background:var(--b-bg)}
+.col .name{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.col .verdict{font-weight:800;font-size:14px}
+.col .risk{color:var(--muted);font-size:12px;margin:2px 0 6px}
+.col ul{margin:0;padding-left:16px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px}
+.badge.agree{background:var(--agree-bg);color:var(--agree)}
+.badge.disagree{background:#FFF3D6;color:#8A5A00}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="notice">Illustrative comparison on a small set of postings, not a full benchmark. Run scripts/evaluate.py on each engine over a large labelled set for real numbers.</div>
+<main class="wrap">
+  <h1>Laya vs Jev</h1>
+  <p class="sub" id="sub"></p>
+  <div class="stats" id="stats"></div>
+  <div id="feed"></div>
+</main>
+<script>
+const DATA=/*__DATA__*/null;
+const S=DATA.summary,ROWS=DATA.rows;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const VT={likely_scam:"Likely scam",check:"Check first",looks_ok:"Looks OK"};
+document.getElementById("sub").textContent=`${S.n} postings · ${esc(S.engine_a)} vs ${esc(S.engine_b)}`;
+document.getElementById("stats").innerHTML=`
+  <div class="stat"><b>${S.agree}/${S.n}</b><span>Same verdict (${S.agree_pct}%)</span></div>
+  <div class="stat"><b>${S.timing_a.ms_per_posting}ms</b><span>${esc(S.engine_a)} per posting</span></div>
+  <div class="stat"><b>${S.timing_b.ms_per_posting}ms</b><span>${esc(S.engine_b)} per posting</span></div>`;
+document.getElementById("feed").innerHTML=ROWS.map(r=>`
+  <article class="card">
+    <h3>${esc(r.title)} <span class="badge ${r.agree?"agree":"disagree"}">${r.agree?"agree":"disagree"}</span></h3>
+    <div class="co">${esc(r.company||"not stated")}${r.label!=null?` · labelled ${r.label?"scam":"genuine"}`:""}</div>
+    <p class="snip">${esc(r.snippet)}${r.snippet.length>=220?"…":""}</p>
+    <div class="cols">
+      <div class="col a"><div class="name">${esc(S.engine_a)}</div><div class="verdict">${VT[r.a.verdict]}</div>
+        <div class="risk">Risk ${Math.round(r.a.risk*100)}%</div>
+        <ul>${r.a.top_signals.map(s=>`<li>${esc(s)}</li>`).join("")||"<li>No flags</li>"}</ul></div>
+      <div class="col b"><div class="name">${esc(S.engine_b)}</div><div class="verdict">${VT[r.b.verdict]}</div>
+        <div class="risk">Risk ${Math.round(r.b.risk*100)}%</div>
+        <ul>${r.b.top_signals.map(s=>`<li>${esc(s)}</li>`).join("")||"<li>No flags</li>"}</ul></div>
+    </div>
+  </article>`).join("");
+</script>
+</body>
+</html>

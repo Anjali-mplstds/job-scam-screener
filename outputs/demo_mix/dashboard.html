@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job posting screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F1F3F5;--card:#FFFFFF;--ink:#16202B;--muted:#5A6672;--line:#CBD3DA;
+--scam:#B3261E;--scam-bg:#FBEAE8;--check:#9A6300;--check-bg:#FFF3D6;--ok:#1F7A5A;--ok-bg:#E3F3EC;
+--font:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #2451D6;outline-offset:2px}
+.mock{background:var(--scam);color:#fff;padding:8px 16px;font-weight:600;text-align:center}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px;display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start}
+.desk{position:sticky;top:16px}
+.desk h1{font-size:15px;font-weight:600;margin:0 0 14px;color:var(--muted)}
+.big{font-size:76px;font-weight:800;line-height:.95;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.sub{font-size:20px;font-weight:600;margin:6px 0 2px}
+.sub b{font-weight:800;font-variant-numeric:tabular-nums}
+.meta{color:var(--muted);font-size:13px;margin:0 0 18px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin:6px 0 8px}
+.bar i{display:block;transition:width .25s}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-bottom:22px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c)}
+.play{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:600;margin-bottom:6px}
+.note{font-size:12px;color:var(--muted);margin:0 0 24px}
+h2{font-size:14px;font-weight:600;margin:0 0 10px;color:var(--muted)}
+.sig{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13px;margin-bottom:8px}
+.sig .track{grid-column:1/-1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.sig .track i{display:block;height:100%;background:var(--scam)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600}
+.filters button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:6px 16px}
+.card h3{margin:0;font-size:16px;font-weight:600}
+.co{color:var(--muted);font-size:13px}
+.snip{grid-column:1/-1;margin:2px 0;color:#2B3641;font-size:14px;max-width:78ch}
+.stamp{align-self:start;justify-self:end;font-weight:800;font-size:14px;padding:3px 10px;border:2px solid var(--c);color:var(--c);border-radius:4px;box-shadow:inset 0 0 0 2px var(--bg);background:var(--bg);transform:rotate(-2.5deg);white-space:nowrap}
+.likely_scam{--c:var(--scam);--bg:var(--scam-bg)}.check{--c:var(--check);--bg:var(--check-bg)}.looks_ok{--c:var(--ok);--bg:var(--ok-bg)}
+.chips{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--scam-bg);color:var(--scam)}
+.chip.rule{background:#E8EDF2;color:#33414F}
+.risk{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.risk .track{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.risk .track i{display:block;height:100%;background:var(--c)}
+details{grid-column:1/-1;font-size:13px}summary{cursor:pointer;color:var(--muted)}
+details ul{margin:6px 0 0;padding-left:18px}details li{margin-bottom:4px}
+.more{width:100%;padding:10px;background:transparent;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-weight:600}
+.flash{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:translateY(-8px)}}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}.desk{position:static}.big{font-size:60px}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div id="mock" class="mock" hidden>Mock engine: keyword heuristics for testing, not Laya output. Do not publish this run as a Laya result.</div>
+<main class="wrap">
+  <aside class="desk">
+    <h1>Job posting screener</h1>
+    <div class="big" id="count">0</div>
+    <div class="sub">postings screened in <b id="secs">0.0</b> s</div>
+    <p class="meta" id="meta"></p>
+    <div class="bar" id="bar" role="img" aria-label="Share of postings by verdict"></div>
+    <div class="legend" id="legend"></div>
+    <button class="play" id="play">Replay the run</button>
+    <p class="note">Replay animates a recorded run. The counts and time come from the real results.</p>
+    <h2>Most common red flags</h2>
+    <div id="signals"></div>
+    <h2 style="margin-top:20px">Scam types</h2>
+    <div id="types" class="meta"></div>
+  </aside>
+  <section>
+    <div class="filters" id="filters" role="group" aria-label="Filter by verdict"></div>
+    <div id="feed" aria-live="polite"></div>
+    <button class="more" id="more" hidden>Show more</button>
+  </section>
+</main>
+<script>
+const DATA={"summary": {"engine": "laya:router", "is_mock": false, "hardware": {"engine": "laya:router", "python": "3.10.0", "machine": "AMD64", "device": "cpu", "torch": "2.13.0+cpu", "laya": "0.3.20"}, "timing": {"engine_seconds": 412.28, "postings": 20, "ms_per_posting": 20613.98, "postings_per_second": 0.05, "batch_size": 16}, "total": 20, "verdicts": {"looks_ok": 13, "check": 7, "likely_scam": 0}, "top_signals": [["Pay-per-task gig", 6], ["Asks you to pay money", 4], ["Hired with no interview", 3], ["Pushes you off-platform", 2], ["Moves money for the 'employer'", 1], ["Pressure to act fast", 1]], "scam_types": {}, "labelled": {"n": 20, "tp": 4, "fn": 4, "fp": 3, "tn": 9, "note": "flagged = 'Check first' or 'Likely scam'"}}, "verdict_text": {"looks_ok": "Looks OK", "check": "Check first", "likely_scam": "Likely scam"}, "records": [{"i": 10, "id": "17523", "title": "Home Based Payroll Typist/Data Entry Clerks Positions Available", "company": "not stated", "location": "US, VA, Accomac", "snippet": "We have several openings available in this area earning $1000.00-$2500.00 per week. We are seeking only honest, self-motivated people with a desire to work in the home typing and data entry field, from the comfort of their own homes.The pre", "label": 1, "risk": 0.5483, "verdict": "check", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.667, "p_model": 0.917, "rule": false, "evidence": null}, {"id": "no_interview", "label": "Hired with no interview", "contribution": 0.341, "p_model": 0.926, "rule": false, "evidence": null}, {"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.26, "p_model": 0.645, "rule": false, "evidence": null}, {"id": "offplatform", "label": "Pushes you off-platform", "contribution": 0.245, "p_model": 0.723, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0425, "task_scam": 0.2291, "money_mule": 0.0737, "data_harvest": 0.0276, "genuine": 0.6272}}, {"i": 16, "id": "17759", "title": "Personal Assistant", "company": "not stated", "location": "US, NY, New York", "snippet": "Job DescriptionVertex Global Solutions  seeks an Executive/Personal Assistant to support one of the Principals of the company. We are offering $25/hr .This is an immediate permanent position . This position is LONG TERM TEMPORARY and is ava", "label": 1, "risk": 0.4677, "verdict": "check", "signals": [{"id": "no_interview", "label": "Hired with no interview", "contribution": 0.382, "p_model": 0.978, "rule": false, "evidence": null}, {"id": "offplatform", "label": "Pushes you off-platform", "contribution": 0.288, "p_model": 0.762, "rule": false, "evidence": null}, {"id": "urgency", "label": "Pressure to act fast", "contribution": 0.284, "p_model": 0.974, "rule": false, "evidence": null}, {"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.184, "p_model": 0.615, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0271, "task_scam": 0.2895, "money_mule": 0.0194, "data_harvest": 0.0118, "genuine": 0.6521}}, {"i": 5, "id": "4590", "title": "Web design intern", "company": "not stated", "location": "US, IL, chicago", "snippet": "We offer interns that can develop web sites referencces as well as profit sharing.  Great chance to get your skills shown to the world and get valuable experience.  This is a telecommute position.  If you have skills this is the time to sho", "label": 1, "risk": 0.4262, "verdict": "check", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.483, "p_model": 0.802, "rule": false, "evidence": null}, {"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.339, "p_model": 0.689, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0528, "task_scam": 0.1522, "money_mule": 0.0484, "data_harvest": 0.0232, "genuine": 0.7234}}, {"i": 8, "id": "17505", "title": "Sales Representative", "company": "not stated", "location": "US, TX, Dallas/Fort Worth", "snippet": "Hercules is an asset based LTL carrier servicing the US and Canada.  Hercules has experienced substantial growth over the years and is looking for an individual that will help continue this pattern.  The available position is for outside sa", "label": 0, "risk": 0.4133, "verdict": "check", "signals": [{"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.59, "p_model": 0.828, "rule": false, "evidence": null}, {"id": "money_handling", "label": "Moves money for the 'employer'", "contribution": 0.376, "p_model": 0.721, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.1016, "task_scam": 0.1195, "money_mule": 0.1933, "data_harvest": 0.0345, "genuine": 0.5511}}, {"i": 2, "id": "13148", "title": "Digital Marketing Coordinator, Singapore", "company": "not stated", "location": "SG, 01,", "snippet": "As our Digital Marketing Specialist, you will join our Digital Team. We're a bunch of creative, business-minded people that live and love digital. Being an international group, we feel passionate about helping our clients conquer new fronti", "label": 0, "risk": 0.3748, "verdict": "check", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.508, "p_model": 0.818, "rule": false, "evidence": null}, {"id": "no_interview", "label": "Hired with no interview", "contribution": 0.264, "p_model": 0.83, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0534, "task_scam": 0.2644, "money_mule": 0.0694, "data_harvest": 0.0343, "genuine": 0.5785}}, {"i": 14, "id": "6576", "title": "Project Subcontracting Manager", "company": "not stated", "location": "US, TX, Houston", "snippet": "Corporate overviewAker Solutions is a global provider of products, systems and services to the oil and gas industry. Our engineering, design and technology bring discoveries into production and maximize recovery from each petroleum field. W", "label": 1, "risk": 0.31, "verdict": "check", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.469, "p_model": 0.793, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.064, "task_scam": 0.354, "money_mule": 0.1247, "data_harvest": 0.0661, "genuine": 0.3912}}, {"i": 18, "id": "6456", "title": "Frontend Developer", "company": "not stated", "location": "PL, PM, Gdańsk", "snippet": "We are young and small startup with all benefits of it. If you are looking for a place where you aren't a 'coding monkey' but you will have an opportuinty to engage yourself in a great projects where you can spread your wings - this is the ", "label": 0, "risk": 0.3022, "verdict": "check", "signals": [{"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.31, "p_model": 0.672, "rule": false, "evidence": null}, {"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.303, "p_model": 0.689, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0467, "task_scam": 0.2016, "money_mule": 0.0554, "data_harvest": 0.0261, "genuine": 0.6702}}, {"i": 11, "id": "7514", "title": "UX Guru", "company": "not stated", "location": "GB, , London", "snippet": "TransferWise is a fast growing online money transfer platform. We help people and businesses make international payments online, quickly and for a low cost. Read more about us here #URL_1970b6c2ef0008043f0b8512f01f7141050a736c4f219867475a8c", "label": 0, "risk": 0.2974, "verdict": "looks_ok", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.484, "p_model": 0.803, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0401, "task_scam": 0.6364, "money_mule": 0.0581, "data_harvest": 0.0299, "genuine": 0.2355}}, {"i": 15, "id": "1822", "title": "Principal/Senior Mechanical Engineer (Package Equipment)", "company": "not stated", "location": "US, TX, Houston", "snippet": "Corporate overviewAker Solutions is a global provider of products, systems and services to the oil and gas industry. Our engineering, design and technology bring discoveries into production and maximize recovery from each petroleum field. W", "label": 1, "risk": 0.2749, "verdict": "looks_ok", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.226, "p_model": 0.641, "rule": false, "evidence": null}, {"id": "sensitive_info", "label": "Wants sensitive data up front", "contribution": 0.214, "p_model": 0.634, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0732, "task_scam": 0.1868, "money_mule": 0.092, "data_harvest": 0.0483, "genuine": 0.5996}}, {"i": 19, "id": "12683", "title": "Project Manager", "company": "not stated", "location": "US, , Remote", "snippet": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean egestas lectus orci, pellentesque consectetur erat consectetur ac. Maecenas commodo, est in malesuada cursus, urna purus elementum ante, eu pretium est ante a ante. In at ligul", "label": 0, "risk": 0.255, "verdict": "looks_ok", "signals": [{"id": "vague_company", "label": "Employer is vague", "contribution": 0.165, "p_model": 0.706, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.041, "task_scam": 0.5408, "money_mule": 0.0843, "data_harvest": 0.0376, "genuine": 0.2962}}, {"i": 4, "id": "11588", "title": "SEO Analysis", "company": "not stated", "location": "US, CA, San Mateo", "snippet": "Seeking an SEO Analyst to drive traffic from organic search.  The ideal candidate will be extremely detail oriented with SEO or online Marketing Campaign Management experience.  This is great ground floor opportunity to join a Nascent Digit", "label": 1, "risk": 0.2512, "verdict": "looks_ok", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.427, "p_model": 0.767, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0955, "task_scam": 0.2905, "money_mule": 0.1106, "data_harvest": 0.0572, "genuine": 0.4462}}, {"i": 6, "id": "8493", "title": "SAP BW Solution Architect", "company": "not stated", "location": "US, OK, Tulsa", "snippet": "Execute BI Strategy by leveraging SAP BW and BusinessObjects capabilitiesProvide solutions architecture oversight for new development projects in support of company’s BI programAgree upon timelines and budget and ensure adoption of best-in-", "label": 0, "risk": 0.2432, "verdict": "looks_ok", "signals": [{"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.252, "p_model": 0.64, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.1384, "task_scam": 0.1532, "money_mule": 0.1629, "data_harvest": 0.0962, "genuine": 0.4492}}, {"i": 3, "id": "14124", "title": "Inhouse Sales Associate", "company": "not stated", "location": "GB, ,", "snippet": "Tizaro has a fabulous online marketing team who are wizards when it comes to customer acquisition. Your role is to take those customers and focus on retention and repeat purchases while increasing their spend with Tizaro. The main way you w", "label": 0, "risk": 0.1489, "verdict": "looks_ok", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.262, "p_model": 0.664, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0563, "task_scam": 0.1248, "money_mule": 0.0674, "data_harvest": 0.0307, "genuine": 0.7209}}, {"i": 13, "id": "11397", "title": "Elite Agent", "company": "not stated", "location": "US, NY, New York", "snippet": "Shipster is in search of motivated, respectful, safety-conscious men and women to join the Shipster Elite Squad. The \"Elite Squad\" consists of the best of the best. Elite Agents are the driving force behind Shipster operations and are our f", "label": 0, "risk": 0.0935, "verdict": "looks_ok", "signals": [{"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.16, "p_model": 0.6, "rule": false, "evidence": null}], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0717, "task_scam": 0.2876, "money_mule": 0.1582, "data_harvest": 0.0318, "genuine": 0.4508}}, {"i": 17, "id": "17746", "title": "Customer Service Position", "company": "not stated", "location": "US, NY, newyork", "snippet": "Answers customer/client requests or inquiries concerning servicesResponsible for improving customer retention through programs and service provided to the customerContinually maintain working knowledge of all company products, services and ", "label": 1, "risk": 0.0821, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0349, "task_scam": 0.1137, "money_mule": 0.032, "data_harvest": 0.0255, "genuine": 0.7939}}, {"i": 0, "id": "469", "title": "Junior Software Engineer", "company": "not stated", "location": "US, CO, Denver", "snippet": "Cloud Elements is a cloud application developer and integrator based in Denver, CO.  We partner with leading SaaS, PaaS and big data vendors such as Google, GitHub, SendGrid, Twilio, Stripe, Box, #URL_24cd44edb473365624a280f26f00a589336e128", "label": 0, "risk": 0.0272, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0643, "task_scam": 0.1203, "money_mule": 0.1301, "data_harvest": 0.0493, "genuine": 0.636}}, {"i": 9, "id": "9800", "title": "Deputy Editor", "company": "not stated", "location": "GB, ENG, London", "snippet": "The CompanyThe Beans Group is a media company that exists to empower young people to thrive.  We have been on an exponential growth spurt since our inception as #URL_8d1ca4faf2d2518ce9ec21b3fbe5c63e4b47f383d6bb1f0a681ff6cc801b4550# in 2005 ", "label": 0, "risk": 0.0125, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.041, "task_scam": 0.0819, "money_mule": 0.053, "data_harvest": 0.0276, "genuine": 0.7965}}, {"i": 1, "id": "5229", "title": "UI Designer at Intel", "company": "not stated", "location": "US, OR, Hillsboro", "snippet": "The Datacenter Manager team at Intel is looking for a talented UI designer/developer to help build our recently-announced product, Intel Datacenter Manager: Service Assurance Administrator (#URL_d1b0d32e941987fc3c230c2ae30bc8f7f29113252c072", "label": 0, "risk": 0.0, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0623, "task_scam": 0.2041, "money_mule": 0.1004, "data_harvest": 0.0407, "genuine": 0.5925}}, {"i": 7, "id": "9763", "title": "Chief Operating Officer--TX/OK (north of Dallas) (For-Profit Hospital Exp.Required)", "company": "not stated", "location": "US, TX, Dallas", "snippet": "Technologically advanced general-acute-care hospital in attractive, affordable and family-oriented Oklahoma/Texas community.This quality-oriented, for-profit hospital features very modern setting. Company is high-caliber and very financiall", "label": 0, "risk": 0.0, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0572, "task_scam": 0.0965, "money_mule": 0.0558, "data_harvest": 0.0243, "genuine": 0.7663}}, {"i": 12, "id": "11566", "title": "Information Security Manager", "company": "not stated", "location": "US, CA, San Mateo", "snippet": "This leading-edge company drives over $3 billion in revenue from web sites, search engines, and social networks for more than 8,400 of the world’s top brands.  As a Information Security Manager you will work to develop and deliver informati", "label": 1, "risk": 0.0, "verdict": "looks_ok", "signals": [], "scam_type": null, "scam_type_probs": {"advance_fee": 0.0744, "task_scam": 0.0701, "money_mule": 0.0682, "data_harvest": 0.0522, "genuine": 0.735}}]};
+const S=DATA.summary,R=DATA.records,VT=DATA.verdict_text,N=R.length;
+const COL={likely_scam:"var(--scam)",check:"#D99A1E",looks_ok:"var(--ok)"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let filter="all",shown=40,replaying=false;
+
+function card(r,flash){
+  const chips=r.signals.slice(0,5).map(s=>`<span class="chip ${s.p_model==null?"rule":""}">${esc(s.label)}</span>`).join("");
+  const why=r.signals.map(s=>`<li><b>${esc(s.label)}</b> ${s.p_model!=null?`· model ${Math.round(s.p_model*100)}%`:""}${s.rule?" · rule match":""}${s.evidence?`<br><span class="co">${esc(s.evidence)}</span>`:""}</li>`).join("");
+  return `<article class="card ${r.verdict}${flash?" flash":""}">
+    <div><h3>${esc(r.title)}</h3><div class="co">${esc(r.company)}${r.location?" · "+esc(r.location):""}</div></div>
+    <div class="stamp ${r.verdict}">${VT[r.verdict]}</div>
+    <p class="snip">${esc(r.snippet)}${r.snippet.length>=240?"…":""}</p>
+    ${chips?`<div class="chips">${chips}</div>`:""}
+    <div class="risk ${r.verdict}"><span>Risk ${Math.round(r.risk*100)}%</span><div class="track"><i style="width:${Math.round(r.risk*100)}%"></i></div>${r.scam_type?`<span>${esc(r.scam_type.replace("_"," "))}</span>`:""}</div>
+    ${why?`<details><summary>Why it was flagged</summary><ul>${why}</ul></details>`:""}
+  </article>`;
+}
+
+function stats(list,secs){
+  const c={likely_scam:0,check:0,looks_ok:0};list.forEach(r=>c[r.verdict]++);
+  $("count").textContent=list.length.toLocaleString();
+  $("secs").textContent=secs.toFixed(1);
+  const t=Math.max(list.length,1);
+  $("bar").innerHTML=Object.keys(c).map(k=>`<i style="width:${100*c[k]/t}%;background:${COL[k]}"></i>`).join("");
+  $("legend").innerHTML=Object.keys(c).map(k=>`<span style="--c:${COL[k]}">${VT[k]} <b>${c[k]}</b></span>`).join("");
+}
+function side(){
+  const T=S.timing,H=S.hardware||{};
+  $("meta").textContent=`${T.ms_per_posting} ms per posting · ${S.engine}${H.device?" · "+H.device:""}`;
+  const top=S.top_signals||[],max=top.length?top[0][1]:1;
+  $("signals").innerHTML=top.map(([l,n])=>`<div class="sig"><span>${esc(l)}</span><b>${n}</b><div class="track"><i style="width:${100*n/max}%"></i></div></div>`).join("")||'<p class="meta">Nothing flagged.</p>';
+  const ty=Object.entries(S.scam_types||{}).sort((a,b)=>b[1]-a[1]);
+  $("types").innerHTML=ty.map(([k,n])=>`${esc(k.replace("_"," "))}: ${n}`).join("<br>")||"None detected.";
+}
+function renderFeed(){
+  const list=R.filter(r=>filter==="all"||r.verdict===filter);
+  $("feed").innerHTML=list.slice(0,shown).map(r=>card(r)).join("")||'<p class="meta">No postings in this group.</p>';
+  $("more").hidden=list.length<=shown;
+  $("more").textContent=`Show more (${list.length-shown} left)`;
+}
+function filters(){
+  const c={all:N};R.forEach(r=>c[r.verdict]=(c[r.verdict]||0)+1);
+  $("filters").innerHTML=["all","likely_scam","check","looks_ok"].map(k=>`<button data-k="${k}" aria-pressed="${k===filter}">${k==="all"?"All":VT[k]} ${c[k]||0}</button>`).join("");
+}
+$("filters").onclick=e=>{const k=e.target.dataset.k;if(!k)return;filter=k;shown=40;filters();renderFeed();};
+$("more").onclick=()=>{shown+=40;renderFeed();};
+
+function final(){replaying=false;stats(R,S.timing.engine_seconds);filters();renderFeed();$("play").disabled=false;}
+$("play").onclick=()=>{
+  if(replaying)return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){final();return;}
+  replaying=true;$("play").disabled=true;filter="all";filters();
+  const order=[...R].sort((a,b)=>a.i-b.i),step=Math.max(1,Math.ceil(N/120));let k=0;
+  const tick=()=>{
+    const fresh=order.slice(k,k+step);k=Math.min(N,k+step);
+    const done=order.slice(0,k);
+    stats(done,S.timing.engine_seconds*k/N);
+    const prev=$("feed").innerHTML;
+    $("feed").innerHTML=fresh.slice(-3).reverse().map(r=>card(r,true)).join("")+prev.split("</article>").slice(0,9).join("</article>");
+    if(k<N)setTimeout(tick,50);else setTimeout(final,600);
+  };tick();
+};
+if(S.is_mock)$("mock").hidden=false;
+side();final();
+</script>
+</body>
+</html>

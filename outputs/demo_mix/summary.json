@@ -1,0 +1,60 @@
+{
+  "engine": "laya:router",
+  "is_mock": false,
+  "hardware": {
+    "engine": "laya:router",
+    "python": "3.10.0",
+    "machine": "AMD64",
+    "device": "cpu",
+    "torch": "2.13.0+cpu",
+    "laya": "0.3.20"
+  },
+  "timing": {
+    "engine_seconds": 412.28,
+    "postings": 20,
+    "ms_per_posting": 20613.98,
+    "postings_per_second": 0.05,
+    "batch_size": 16
+  },
+  "total": 20,
+  "verdicts": {
+    "looks_ok": 13,
+    "check": 7,
+    "likely_scam": 0
+  },
+  "top_signals": [
+    [
+      "Pay-per-task gig",
+      6
+    ],
+    [
+      "Asks you to pay money",
+      4
+    ],
+    [
+      "Hired with no interview",
+      3
+    ],
+    [
+      "Pushes you off-platform",
+      2
+    ],
+    [
+      "Moves money for the 'employer'",
+      1
+    ],
+    [
+      "Pressure to act fast",
+      1
+    ]
+  ],
+  "scam_types": {},
+  "labelled": {
+    "n": 20,
+    "tp": 4,
+    "fn": 4,
+    "fp": 3,
+    "tn": 9,
+    "note": "flagged = 'Check first' or 'Likely scam'"
+  }
+}

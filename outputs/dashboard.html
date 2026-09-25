@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job posting screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F1F3F5;--card:#FFFFFF;--ink:#16202B;--muted:#5A6672;--line:#CBD3DA;
+--scam:#B3261E;--scam-bg:#FBEAE8;--check:#9A6300;--check-bg:#FFF3D6;--ok:#1F7A5A;--ok-bg:#E3F3EC;
+--font:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #2451D6;outline-offset:2px}
+.mock{background:var(--scam);color:#fff;padding:8px 16px;font-weight:600;text-align:center}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px;display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start}
+.desk{position:sticky;top:16px}
+.desk h1{font-size:15px;font-weight:600;margin:0 0 14px;color:var(--muted)}
+.big{font-size:76px;font-weight:800;line-height:.95;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.sub{font-size:20px;font-weight:600;margin:6px 0 2px}
+.sub b{font-weight:800;font-variant-numeric:tabular-nums}
+.meta{color:var(--muted);font-size:13px;margin:0 0 18px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin:6px 0 8px}
+.bar i{display:block;transition:width .25s}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-bottom:22px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c)}
+.play{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:600;margin-bottom:6px}
+.note{font-size:12px;color:var(--muted);margin:0 0 24px}
+h2{font-size:14px;font-weight:600;margin:0 0 10px;color:var(--muted)}
+.sig{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13px;margin-bottom:8px}
+.sig .track{grid-column:1/-1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.sig .track i{display:block;height:100%;background:var(--scam)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600}
+.filters button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:6px 16px}
+.card h3{margin:0;font-size:16px;font-weight:600}
+.co{color:var(--muted);font-size:13px}
+.snip{grid-column:1/-1;margin:2px 0;color:#2B3641;font-size:14px;max-width:78ch}
+.stamp{align-self:start;justify-self:end;font-weight:800;font-size:14px;padding:3px 10px;border:2px solid var(--c);color:var(--c);border-radius:4px;box-shadow:inset 0 0 0 2px var(--bg);background:var(--bg);transform:rotate(-2.5deg);white-space:nowrap}
+.likely_scam{--c:var(--scam);--bg:var(--scam-bg)}.check{--c:var(--check);--bg:var(--check-bg)}.looks_ok{--c:var(--ok);--bg:var(--ok-bg)}
+.chips{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--scam-bg);color:var(--scam)}
+.chip.rule{background:#E8EDF2;color:#33414F}
+.risk{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.risk .track{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.risk .track i{display:block;height:100%;background:var(--c)}
+details{grid-column:1/-1;font-size:13px}summary{cursor:pointer;color:var(--muted)}
+details ul{margin:6px 0 0;padding-left:18px}details li{margin-bottom:4px}
+.more{width:100%;padding:10px;background:transparent;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-weight:600}
+.flash{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:translateY(-8px)}}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}.desk{position:static}.big{font-size:60px}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div id="mock" class="mock" hidden>Mock engine: keyword heuristics for testing, not Laya output. Do not publish this run as a Laya result.</div>
+<main class="wrap">
+  <aside class="desk">
+    <h1>Job posting screener</h1>
+    <div class="big" id="count">0</div>
+    <div class="sub">postings screened in <b id="secs">0.0</b> s</div>
+    <p class="meta" id="meta"></p>
+    <div class="bar" id="bar" role="img" aria-label="Share of postings by verdict"></div>
+    <div class="legend" id="legend"></div>
+    <button class="play" id="play">Replay the run</button>
+    <p class="note">Replay animates a recorded run. The counts and time come from the real results.</p>
+    <h2>Most common red flags</h2>
+    <div id="signals"></div>
+    <h2 style="margin-top:20px">Scam types</h2>
+    <div id="types" class="meta"></div>
+  </aside>
+  <section>
+    <div class="filters" id="filters" role="group" aria-label="Filter by verdict"></div>
+    <div id="feed" aria-live="polite"></div>
+    <button class="more" id="more" hidden>Show more</button>
+  </section>
+</main>
+<script>
+const DATA={"summary": {"engine": "laya:router", "is_mock": false, "hardware": {"engine": "laya:router", "python": "3.10.0", "machine": "AMD64", "device": "cpu", "torch": "2.13.0+cpu", "laya": "0.3.20"}, "timing": {"engine_seconds": 20.187, "postings": 1, "ms_per_posting": 20186.55, "postings_per_second": 0.05, "batch_size": 16}, "total": 1, "verdicts": {"looks_ok": 0, "check": 0, "likely_scam": 1}, "top_signals": [["Asks you to pay money", 1], ["Pay-per-task gig", 1], ["Pushes you off-platform", 1], ["Employer is vague", 1]], "scam_types": {"advance_fee": 1}}, "verdict_text": {"looks_ok": "Looks OK", "check": "Check first", "likely_scam": "Likely scam"}, "records": [{"i": 0, "id": "posting-0", "title": "(untitled)", "company": "not stated", "location": "", "snippet": "Earn /day! Pay a registration fee. WhatsApp us.", "label": null, "risk": 0.9564, "verdict": "likely_scam", "signals": [{"id": "upfront_fee", "label": "Asks you to pay money", "contribution": 0.651, "p_model": 0.634, "rule": true, "evidence": "Earn /day! Pay a registration fee. WhatsApp us."}, {"id": "task_scam", "label": "Pay-per-task gig", "contribution": 0.599, "p_model": 0.874, "rule": false, "evidence": null}, {"id": "offplatform", "label": "Pushes you off-platform", "contribution": 0.537, "p_model": 0.781, "rule": true, "evidence": "Earn /day! Pay a registration fee. WhatsApp us."}, {"id": "vague_company", "label": "Employer is vague", "contribution": 0.328, "p_model": 0.91, "rule": false, "evidence": null}], "scam_type": "advance_fee", "scam_type_probs": {"advance_fee": 0.4552, "task_scam": 0.349, "money_mule": 0.0469, "data_harvest": 0.0316, "genuine": 0.1173}}]};
+const S=DATA.summary,R=DATA.records,VT=DATA.verdict_text,N=R.length;
+const COL={likely_scam:"var(--scam)",check:"#D99A1E",looks_ok:"var(--ok)"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let filter="all",shown=40,replaying=false;
+
+function card(r,flash){
+  const chips=r.signals.slice(0,5).map(s=>`<span class="chip ${s.p_model==null?"rule":""}">${esc(s.label)}</span>`).join("");
+  const why=r.signals.map(s=>`<li><b>${esc(s.label)}</b> ${s.p_model!=null?`· model ${Math.round(s.p_model*100)}%`:""}${s.rule?" · rule match":""}${s.evidence?`<br><span class="co">${esc(s.evidence)}</span>`:""}</li>`).join("");
+  return `<article class="card ${r.verdict}${flash?" flash":""}">
+    <div><h3>${esc(r.title)}</h3><div class="co">${esc(r.company)}${r.location?" · "+esc(r.location):""}</div></div>
+    <div class="stamp ${r.verdict}">${VT[r.verdict]}</div>
+    <p class="snip">${esc(r.snippet)}${r.snippet.length>=240?"…":""}</p>
+    ${chips?`<div class="chips">${chips}</div>`:""}
+    <div class="risk ${r.verdict}"><span>Risk ${Math.round(r.risk*100)}%</span><div class="track"><i style="width:${Math.round(r.risk*100)}%"></i></div>${r.scam_type?`<span>${esc(r.scam_type.replace("_"," "))}</span>`:""}</div>
+    ${why?`<details><summary>Why it was flagged</summary><ul>${why}</ul></details>`:""}
+  </article>`;
+}
+
+function stats(list,secs){
+  const c={likely_scam:0,check:0,looks_ok:0};list.forEach(r=>c[r.verdict]++);
+  $("count").textContent=list.length.toLocaleString();
+  $("secs").textContent=secs.toFixed(1);
+  const t=Math.max(list.length,1);
+  $("bar").innerHTML=Object.keys(c).map(k=>`<i style="width:${100*c[k]/t}%;background:${COL[k]}"></i>`).join("");
+  $("legend").innerHTML=Object.keys(c).map(k=>`<span style="--c:${COL[k]}">${VT[k]} <b>${c[k]}</b></span>`).join("");
+}
+function side(){
+  const T=S.timing,H=S.hardware||{};
+  $("meta").textContent=`${T.ms_per_posting} ms per posting · ${S.engine}${H.device?" · "+H.device:""}`;
+  const top=S.top_signals||[],max=top.length?top[0][1]:1;
+  $("signals").innerHTML=top.map(([l,n])=>`<div class="sig"><span>${esc(l)}</span><b>${n}</b><div class="track"><i style="width:${100*n/max}%"></i></div></div>`).join("")||'<p class="meta">Nothing flagged.</p>';
+  const ty=Object.entries(S.scam_types||{}).sort((a,b)=>b[1]-a[1]);
+  $("types").innerHTML=ty.map(([k,n])=>`${esc(k.replace("_"," "))}: ${n}`).join("<br>")||"None detected.";
+}
+function renderFeed(){
+  const list=R.filter(r=>filter==="all"||r.verdict===filter);
+  $("feed").innerHTML=list.slice(0,shown).map(r=>card(r)).join("")||'<p class="meta">No postings in this group.</p>';
+  $("more").hidden=list.length<=shown;
+  $("more").textContent=`Show more (${list.length-shown} left)`;
+}
+function filters(){
+  const c={all:N};R.forEach(r=>c[r.verdict]=(c[r.verdict]||0)+1);
+  $("filters").innerHTML=["all","likely_scam","check","looks_ok"].map(k=>`<button data-k="${k}" aria-pressed="${k===filter}">${k==="all"?"All":VT[k]} ${c[k]||0}</button>`).join("");
+}
+$("filters").onclick=e=>{const k=e.target.dataset.k;if(!k)return;filter=k;shown=40;filters();renderFeed();};
+$("more").onclick=()=>{shown+=40;renderFeed();};
+
+function final(){replaying=false;stats(R,S.timing.engine_seconds);filters();renderFeed();$("play").disabled=false;}
+$("play").onclick=()=>{
+  if(replaying)return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){final();return;}
+  replaying=true;$("play").disabled=true;filter="all";filters();
+  const order=[...R].sort((a,b)=>a.i-b.i),step=Math.max(1,Math.ceil(N/120));let k=0;
+  const tick=()=>{
+    const fresh=order.slice(k,k+step);k=Math.min(N,k+step);
+    const done=order.slice(0,k);
+    stats(done,S.timing.engine_seconds*k/N);
+    const prev=$("feed").innerHTML;
+    $("feed").innerHTML=fresh.slice(-3).reverse().map(r=>card(r,true)).join("")+prev.split("</article>").slice(0,9).join("</article>");
+    if(k<N)setTimeout(tick,50);else setTimeout(final,600);
+  };tick();
+};
+if(S.is_mock)$("mock").hidden=false;
+side();final();
+</script>
+</body>
+</html>

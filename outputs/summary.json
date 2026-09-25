@@ -1,0 +1,46 @@
+{
+  "engine": "laya:router",
+  "is_mock": false,
+  "hardware": {
+    "engine": "laya:router",
+    "python": "3.10.0",
+    "machine": "AMD64",
+    "device": "cpu",
+    "torch": "2.13.0+cpu",
+    "laya": "0.3.20"
+  },
+  "timing": {
+    "engine_seconds": 20.187,
+    "postings": 1,
+    "ms_per_posting": 20186.55,
+    "postings_per_second": 0.05,
+    "batch_size": 16
+  },
+  "total": 1,
+  "verdicts": {
+    "looks_ok": 0,
+    "check": 0,
+    "likely_scam": 1
+  },
+  "top_signals": [
+    [
+      "Asks you to pay money",
+      1
+    ],
+    [
+      "Pay-per-task gig",
+      1
+    ],
+    [
+      "Pushes you off-platform",
+      1
+    ],
+    [
+      "Employer is vague",
+      1
+    ]
+  ],
+  "scam_types": {
+    "advance_fee": 1
+  }
+}

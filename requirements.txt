@@ -1,0 +1,2 @@
+pyyaml>=6.0
+laya>=0.3.12        # needs Python 3.10+; pulls torch + transformers (weights download on first run)

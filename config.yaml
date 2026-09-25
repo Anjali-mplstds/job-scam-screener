@@ -1,0 +1,42 @@
+# ---- Engine -------------------------------------------------------------
+engine:
+  type: laya              # laya | http | mock   (mock = offline plumbing test, NOT Laya)
+  laya:
+    checkpoint: router    # router | english | multilingual | typed-decisions
+    repo: convaiinnovations/laya
+    device: null          # null = auto; or cuda / cpu / mps
+    batch_size: 16
+  http:                   # laya-serve, or any System One-compatible POST /v1/systemone endpoint
+    base_url: http://localhost:8000
+    endpoint: /v1/systemone
+    api_key_env: SCREENER_API_KEY     # env var holding the bearer token, if the server needs one
+    workers: 8
+    timeout_s: 30
+    label: null           # name shown in the dashboard, e.g. "jev"
+    model: null           # only needed for a multi-model gateway, e.g. "typesafe/jev-1.13"
+
+# Ready-made Jev preset via OpenRouter - no TypeSafe waitlist needed.
+# Use it with:  python run_pipeline.py --input ... --jev
+# (get a key at https://openrouter.ai/settings/keys, then: export OPENROUTER_API_KEY=sk-...)
+jev_preset:
+  base_url: https://openrouter.ai/api
+  endpoint: /v1/systemone
+  api_key_env: OPENROUTER_API_KEY
+  model: typesafe/jev-1.13
+  label: jev-1.13 (via OpenRouter)
+  workers: 4              # OpenRouter rate-limits; keep this modest
+  timeout_s: 30
+
+# ---- Questions ----------------------------------------------------------
+question_mode: ab         # ab = choice A/B (recommended by the Laya model card) | noul
+state_chars: 900          # description budget; English checkpoint reads ~320 tokens of state
+
+# ---- Scoring (fit these on your own labelled data: scripts/evaluate.py --calibrate) ----
+scoring:
+  temperature: 1.0        # Laya ships over-confident; >1 softens it
+  rule_scale: 0.6         # weight of a regex hit relative to the check's weight
+  protect_scale: 0.5      # max risk reduction for a clear, verifiable role
+  hard_floor: 0.75        # min risk when fee / sensitive-data / money-handling fires confidently
+  thresholds:
+    check: 0.30
+    scam: 0.60
