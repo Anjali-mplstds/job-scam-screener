@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Job Scam Screener — Laya vs Jev</title>
+<meta name="theme-color" content="#141821">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE7D9; --paper-line:#D8CFB8; --ink:#161A22; --ink-soft:#3A4150;
+  --panel:#F5F1E6; --muted:#6B7280; --amber:#B4762A; --amber-bg:#F3E3C6;
+  --clear:#3D6B52; --clear-bg:#E1EEE5; --disagree:#B4762A; --disagree-bg:#F3E3C6;
+  --hero-bg:#141821; --hero-ink:#F0ECDF; --hero-line:#2A3040; --accent:#D9A441;
+  --font-display:"Fraunces",Georgia,serif; --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+  font-size:16px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1B1E27;--paper-line:#2C303C;--ink:#EDEAE0;--ink-soft:#B8BEC9;--panel:#22262F;
+  --muted:#8A90A0;--amber:#E3B15C;--amber-bg:#3A2E19;--clear:#7FCBA4;--clear-bg:#1B3226;
+  --disagree:#E3B15C;--disagree-bg:#3A2E19;--hero-line:#333949}}
+:root[data-theme="dark"]{
+  --paper:#1B1E27;--paper-line:#2C303C;--ink:#EDEAE0;--ink-soft:#B8BEC9;--panel:#22262F;
+  --muted:#8A90A0;--amber:#E3B15C;--amber-bg:#3A2E19;--clear:#7FCBA4;--clear-bg:#1B3226;
+  --disagree:#E3B15C;--disagree-bg:#3A2E19;--hero-line:#333949}
+
+a{color:inherit}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- HERO ---------- */
+.hero{background:var(--hero-bg);color:var(--hero-ink);padding:56px 0 44px;
+  padding-top:calc(56px + env(safe-area-inset-top,0px))}
+.tag{font-family:var(--font-body);font-size:13px;color:var(--accent);font-weight:600;margin:0 0 14px}
+.hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(30px,5vw,46px);
+  line-height:1.08;margin:0 0 16px;max-width:14ch}
+.hero p{color:#C7C2B4;font-size:16px;max-width:56ch;margin:0 0 32px}
+.verdicts{display:flex;gap:14px;flex-wrap:wrap}
+.vcard{background:rgba(255,255,255,.04);border:1px solid var(--hero-line);border-radius:4px;
+  padding:16px 20px;min-width:190px;flex:1}
+.vcard .who{font-size:13px;color:#9AA0AE;margin:0 0 6px;letter-spacing:.01em}
+.vcard .num{font-family:var(--font-display);font-size:34px;line-height:1;margin:0 0 4px;font-variant-numeric:tabular-nums}
+.vcard .cap{font-size:12.5px;color:#9AA0AE}
+.vcard.jev .num{color:var(--accent)}
+.hero-foot{margin-top:20px;font-size:13px;color:#8B8F9C}
+
+/* ---------- METHOD STRIP ---------- */
+.method{background:var(--panel);border-bottom:1px solid var(--paper-line)}
+.method .wrap{padding:26px 20px}
+.method h2{font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);margin:0 0 10px}
+.method p{margin:0;font-size:15px;color:var(--ink-soft);max-width:66ch}
+.method p + p{margin-top:8px}
+
+/* ---------- EXHIBITS ---------- */
+.exhibits{padding:36px 0 20px}
+.ex-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ex-head h2{font-family:var(--font-display);font-size:24px;margin:0}
+.ex-head .n{color:var(--muted);font-size:14px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.controls button{font-family:var(--font-body);font-size:13.5px;font-weight:500;background:var(--panel);
+  color:var(--ink-soft);border:1px solid var(--paper-line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.search{width:100%;margin:12px 0 20px;font-family:var(--font-body);font-size:15px;padding:10px 14px;
+  border:1px solid var(--paper-line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.search::placeholder{color:var(--muted)}
+
+.case{border:1px solid var(--paper-line);border-radius:4px;background:var(--panel);margin-bottom:12px;overflow:hidden}
+.case-head{width:100%;text-align:left;background:none;border:0;padding:14px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;font-family:var(--font-body);color:var(--ink)}
+.case-head:hover{background:rgba(0,0,0,.02)}
+.case-num{font-family:var(--font-display);font-size:13px;color:var(--muted);min-width:2.4em}
+.case-title{flex:1;min-width:0}
+.case-title b{font-size:15.5px;font-weight:600;display:block}
+.case-title span{font-size:12.5px;color:var(--muted)}
+.tagpill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.tagpill.agree{background:var(--clear-bg);color:var(--clear)}
+.tagpill.disagree{background:var(--disagree-bg);color:var(--disagree)}
+.chev{color:var(--muted);transition:transform .15s}
+.case[open] .chev{transform:rotate(90deg)}
+.case-body{padding:0 16px 18px 16px;border-top:1px solid var(--paper-line)}
+.snip{font-size:13.5px;color:var(--ink-soft);margin:14px 0 14px;max-width:74ch}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.col{border-radius:4px;padding:12px 13px;font-size:13px;background:var(--paper);border:1px solid var(--paper-line)}
+.col .name{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-bottom:5px}
+.col .verdict{font-family:var(--font-display);font-size:16px;margin-bottom:3px}
+.col .risk{color:var(--muted);font-size:12px;margin-bottom:8px}
+.col ul{margin:0;padding-left:16px;color:var(--ink-soft)}
+.col li{margin-bottom:2px}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+
+.empty{padding:30px 16px;text-align:center;color:var(--muted);font-size:14px}
+
+/* ---------- TRY IT ---------- */
+.tryit{background:var(--hero-bg);color:var(--hero-ink);padding:40px 0 44px}
+.tryit h2{font-family:var(--font-display);font-size:24px;margin:0 0 6px}
+.tryit .lede{color:#B9B4A6;font-size:14.5px;max-width:64ch;margin:0 0 20px}
+.tryit textarea{width:100%;min-height:120px;font-family:var(--font-body);font-size:14.5px;
+  padding:12px 14px;border-radius:6px;border:1px solid var(--hero-line);background:rgba(255,255,255,.04);
+  color:var(--hero-ink);resize:vertical}
+.tryit textarea::placeholder{color:#767C8A}
+.tryit-row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.tryit button{font-family:var(--font-body);font-weight:600;font-size:14px;background:var(--accent);
+  color:#1B1400;border:0;border-radius:6px;padding:11px 18px;cursor:pointer}
+.tryit button:hover{filter:brightness(1.06)}
+.tryit .clear-btn{background:none;color:#B9B4A6;border:1px solid var(--hero-line);border-radius:6px;padding:10px 16px;cursor:pointer;font-family:var(--font-body);font-size:14px}
+.try-result{margin-top:18px;padding:16px 18px;border-radius:6px;background:rgba(255,255,255,.04);
+  border:1px solid var(--hero-line);display:none}
+.try-result.show{display:block}
+.try-verdict-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.try-verdict{font-family:var(--font-display);font-size:22px}
+.try-verdict.ok{color:#8FBFA0}.try-verdict.check{color:var(--accent)}.try-verdict.scam{color:#E08A6B}
+.try-risk{font-size:13px;color:#9AA0AE}
+.try-flags{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 4px}
+.try-flag{font-size:12px;font-weight:600;background:var(--amber-bg);color:var(--amber);padding:3px 10px;border-radius:999px}
+.try-none{color:#8FBFA0;font-size:14px;font-weight:600}
+.try-note{font-size:12px;color:#8B8F9C;margin-top:12px}
+.try-label{font-size:11px;font-weight:600;letter-spacing:.03em;color:#767C8A;margin-bottom:8px}
+
+/* ---------- FOOT ---------- */
+footer{padding:30px 0 60px;border-top:1px solid var(--paper-line);margin-top:20px}
+footer p{font-size:13px;color:var(--muted);max-width:70ch;margin:0 0 8px}
+footer a{text-decoration:underline;font-weight:500}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="tag">Case review · job posting scam detection</p>
+    <h1>Two models, the same 1,200 postings, no coaching for either.</h1>
+    <p>Laya and Jev both answered the identical scam checklist on real, held-out job postings from a public fraud dataset. Neither had seen this data before. Here's what each one actually got right, and wrong.</p>
+    <div class="verdicts">
+      <div class="vcard">
+        <p class="who">Laya · zero-shot</p>
+        <p class="num" id="auroc-laya">0.52</p>
+        <p class="cap">AUROC — 0.50 is a coin flip</p>
+      </div>
+      <div class="vcard jev">
+        <p class="who">Jev · zero-shot</p>
+        <p class="num" id="auroc-jev">0.60</p>
+        <p class="cap">AUROC — real, modest signal</p>
+      </div>
+      <div class="vcard">
+        <p class="who">Speed, same-class hardware</p>
+        <p class="num">7-8×</p>
+        <p class="cap">Jev faster (39ms vs 297ms/posting)</p>
+      </div>
+    </div>
+    <p class="hero-foot">1,200 held-out postings · 28 confirmed scams · Kaggle EMSCAD dataset · full method and code linked below</p>
+  </div>
+</header>
+
+<section class="method">
+  <div class="wrap">
+    <h2>How the checklist works</h2>
+    <p>Each posting is checked against ten questions — asks for a fee up front, pushes contact off-platform, wants sensitive data, pay-per-task gig, vague employer, and so on — plus a scam-type classification. Both models answer all of them in one pass and return a confidence for each, no free text generated.</p>
+    <p>The exhibits below are a real sample of that run: actual postings, actual answers from both models, unedited. Filter to see where they agreed, and where they didn't.</p>
+  </div>
+</section>
+
+<section class="tryit">
+  <div class="wrap">
+    <h2>Check a posting of your own</h2>
+    <p class="lede">Paste a job posting below. This runs the same rule layer from the pipeline instantly, in your browser — pattern-matching for common scam wording. It is <strong>not</strong> Laya or Jev — those need a real model call. The 30 exhibits above are the real, full-model results; this is a quick sanity check on new text.</p>
+    <textarea id="tryin" placeholder="Paste a job title and description here…"></textarea>
+    <div class="tryit-row">
+      <button id="trybtn">Check this posting</button>
+      <button class="clear-btn" id="tryclear">Clear</button>
+    </div>
+    <div class="try-result" id="tryout"></div>
+    <p class="try-note">Rule-based only: it looks for known scam phrasing (fees, off-platform contact, pay-per-task language, urgency, and similar). It won't catch subtle scams the way a model might, and it can miss or over-flag — same caveat as the "rules only" line in the benchmark above.</p>
+  </div>
+</section>
+
+<main class="exhibits">
+  <div class="wrap">
+    <div class="ex-head">
+      <h2>Exhibits</h2>
+      <span class="n" id="ex-count"></span>
+    </div>
+    <div class="controls" id="agree-filter"></div>
+    <input class="search" id="search" type="text" placeholder="Search by job title…">
+    <div id="cases"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Full pipeline, calibration tooling, and the Colab notebook used to produce these numbers: <a href="https://github.com/Anjali-mplstds/job-scam-screener" id="repo-link">github.com/Anjali-mplstds/job-scam-screener</a>.</p>
+    <p>This is the zero-shot baseline for both models, on identical, real, held-out data — the benchmark a fine-tuned build gets compared against next.</p>
+  </div>
+</footer>
+
+<script>
+const ROWS = [
+{"i":0,"title":"Marketing Intern","label":0,"snippet":"Food52, a fast-growing, James Beard Award-winning online food community and crowd-sourced and curated recipe hub, is currently interviewing full- and part-time unpaid interns to work in a small team of editors, executive…","a":{"risk":0.3952,"verdict":"check","top_signals":["Moves money for the 'employer'","Pay-per-task gig"]},"b":{"risk":0.2856,"verdict":"looks_ok","top_signals":["Moves money for the 'employer'"]},"agree":false},
+{"i":1,"title":"Customer Service - Cloud Video Production","label":0,"snippet":"Organised - Focused - Vibrant - Awesome! Do you have a passion for customer service? Slick typing skills? Maybe Account Management? ...And think administration is cooler than a polar bear on a jetski? Then we need to hear…","a":{"risk":0.3967,"verdict":"check","top_signals":["Pay-per-task gig","Asks you to pay money"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":2,"title":"Commissioning Machinery Assistant (CMA)","label":0,"snippet":"Our client, located in Houston, is actively seeking an experienced Commissioning Machinery Assistant that possesses strong supervisory skills and has an attention to detail. A strong dedication to safety is a must.","a":{"risk":0.0181,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":3,"title":"Account Executive - Washington DC","label":0,"snippet":"THE COMPANY: ESRI – Environmental Systems Research Institute. Our passion for improving quality of life through geography is at the heart of everything we do. Esri's geographic information system (GIS) technology inspires…","a":{"risk":0.3384,"verdict":"check","top_signals":["Moves money for the 'employer'","Pay-per-task gig","Asks you to pay money"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":4,"title":"Bill Review Manager","label":0,"snippet":"JOB TITLE: Itemization Review Manager. LOCATION: Fort Worth, TX. DEPARTMENT: Itemization Review. REPORTS TO: VP Operations.","a":{"risk":0.0108,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":5,"title":"Accounting Clerk","label":0,"snippet":"Apex is an environmental consulting firm that offers stable leadership and growth and views employees as valuable resources. We are seeking a self-motivated, multi-faceted Accounts Payable Clerk to join our team.","a":{"risk":0.0885,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":6,"title":"Head of Content (m/f)","label":0,"snippet":"Your Responsibilities: Manage the English-speaking editorial team and build a team of best-in-class editors. Set up content creation schedules and ensure deadlines are adhered to.","a":{"risk":0.3332,"verdict":"check","top_signals":["Asks you to pay money","Pay-per-task gig","Wants sensitive data up front"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":7,"title":"Lead Guest Service Specialist","label":0,"snippet":"Who is Airenvy? We are seasoned entrepreneurs in the heart of San Francisco's SOMA neighborhood, looking for someone who embodies an entrepreneurial spirit and pays strong attention to detail.","a":{"risk":0.3646,"verdict":"check","top_signals":["Pay-per-task gig","Pushes you off-platform"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":8,"title":"HP BSM SME","label":0,"snippet":"Implementation/Configuration/Testing/Training on HP Service Health Reporter. MUST BE A US CITIZEN. An active TS/SCI clearance will be required.","a":{"risk":0.2708,"verdict":"looks_ok","top_signals":["Pay-per-task gig"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":9,"title":"Customer Service Associate - Part Time","label":0,"snippet":"The Customer Service Associate will be based in Phoenix, AZ. The right candidate will be an integral part of our talented team, supporting our continued growth.","a":{"risk":0.0853,"verdict":"looks_ok","top_signals":["Wants sensitive data up front"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":10,"title":"ASP.net Developer Job opportunity, New Jersey","label":0,"snippet":"Job Location: United States-New Jersey-Jersey City. Us work status required: EAD / Green Card / US Citizens. Detailed Description follows.","a":{"risk":0.4594,"verdict":"check","top_signals":["Asks you to pay money","Pay-per-task gig"]},"b":{"risk":0.4,"verdict":"check","top_signals":["Employer is vague"]},"agree":true},
+{"i":11,"title":"Talent Sourcer (6 months fixed-term contract)","label":0,"snippet":"TransferWise is the clever new way to move money between countries. Co-founded by Skype's first employee and backed by some of the planet's most experienced innovators.","a":{"risk":0.4012,"verdict":"check","top_signals":["Pay-per-task gig","Hired with no interview"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":12,"title":"Applications Developer, Digital","label":0,"snippet":"The Applications Developer, Digital will develop or participate in the development, support or migration of web and intranet applications, along with other business applications.","a":{"risk":0.0388,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":13,"title":"Installers","label":0,"snippet":"Event Industry Installers Needed!! (Orlando, FL - near Florida Mall). Do you want to work? Are you available on short notice? Willing to work days, weekends, or nights, even overtime?","a":{"risk":0.3903,"verdict":"check","top_signals":["Wants sensitive data up front"]},"b":{"risk":0.376,"verdict":"check","top_signals":["Employer is vague"]},"agree":true},
+{"i":14,"title":"Account Executive - Sydney","label":0,"snippet":"Are you interested in a satisfying and financially rewarding role in a high growth technology company? You'll work in a casual yet high energy environment alongside passionate people.","a":{"risk":0.2045,"verdict":"looks_ok","top_signals":["Pay-per-task gig"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":15,"title":"VP of Sales - Vault Dragon","label":0,"snippet":"Vault Dragon is Dropbox for your physical stuff - a startup changing the aesthetic face of Singapore by creating more space in households and offices.","a":{"risk":0.4686,"verdict":"check","top_signals":["Asks you to pay money","Pay-per-task gig","Moves money for the 'employer'"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":16,"title":"Hands-On QA Leader","label":0,"snippet":"We are looking for a Hands-On QA Leader for our talented R&D team, located in the Center of Tel Aviv, responsible for leading and building our QA process.","a":{"risk":0.1277,"verdict":"looks_ok","top_signals":["Hired with no interview"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":17,"title":"Southend-on-Sea Traineeships, 16-18 Year Olds Only","label":0,"snippet":"Government funding is only available for 16-18 year olds. We have 10 vacancies for career driven, highly motivated individuals living in the Southend-On-Sea area.","a":{"risk":0.2077,"verdict":"looks_ok","top_signals":["Pressure to act fast"]},"b":{"risk":0.3325,"verdict":"check","top_signals":["Pressure to act fast"]},"agree":false},
+{"i":18,"title":"Visual Designer","label":0,"snippet":"Kettle is hiring a Visual Designer! Job Location: New York, NY. Kettle is a growing digital agency focused on delivering outstanding products.","a":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":19,"title":"Process Controls Engineer - DCS PLC MS Office","label":0,"snippet":"Experienced Process Controls Engineer required, with responsibility to monitor the facility's DCS operations and performance, provide technical support and troubleshooting.","a":{"risk":0.1033,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.392,"verdict":"check","top_signals":["Employer is vague"]},"agree":false},
+{"i":20,"title":"Marketing Assistant","label":0,"snippet":"IntelliBright is growing fast and is looking for a Marketing Assistant to join our team. Your invaluable input will help our small to midsize business clientele.","a":{"risk":0.3518,"verdict":"check","top_signals":["Pay-per-task gig","Pushes you off-platform"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":21,"title":"Front End Developer","label":0,"snippet":"Want to be part of a globally focused tech team designing consumer products? Innovative ideas. Creative approaches. Insatiable curiosity.","a":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":22,"title":"Engagement Manager","label":0,"snippet":"The position reports to the Head of Engagement Management in the Mobile Operator Business Unit, liaising between the client and Upstream's internal execution capabilities.","a":{"risk":0.2748,"verdict":"looks_ok","top_signals":["Asks you to pay money"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":23,"title":"VP, Sales and Sponsorship (Businessfriend.com)","label":0,"snippet":"An up and coming social media company is seeking a VP, Sales and Sponsorship executive to be responsible for creating and selling branded, high-impact sponsorships.","a":{"risk":0.4681,"verdict":"check","top_signals":["Asks you to pay money","Pushes you off-platform","Pay-per-task gig"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":24,"title":"Customer Service","label":0,"snippet":"We are a Canary Wharf based e-commerce company and are recruiting for a full time customer service administrator. This is a contractor role.","a":{"risk":0.1544,"verdict":"looks_ok","top_signals":["Moves money for the 'employer'"]},"b":{"risk":0.4,"verdict":"check","top_signals":["Employer is vague"]},"agree":false},
+{"i":25,"title":"H1B Sponsor for L1/L2/OPT","label":0,"snippet":"This is regarding job opportunity with i28 Technologies Corporation, USA. We are looking for IT professionals in different technologies/areas to cater to business needs.","a":{"risk":0.1553,"verdict":"looks_ok","top_signals":["Moves money for the 'employer'"]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true},
+{"i":26,"title":"Marketing Exec","label":0,"snippet":"We are currently expanding our Marketing Department and looking to hire a Content Marketeer with a flair for developing relations with media, partners and customers.","a":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.336,"verdict":"check","top_signals":["Employer is vague"]},"agree":false},
+{"i":27,"title":"HAAD/DHA Licensed Doctors Opening in UAE","label":0,"snippet":"We, the medical recruitment team of Roland and Associates, have a wonderful job opportunity for HAAD Licensed specialist doctors with one of the leading healthcare groups in Abu Dhabi.","a":{"risk":0.5266,"verdict":"check","top_signals":["Asks you to pay money","Pay-per-task gig","Wants sensitive data up front"]},"b":{"risk":0.136,"verdict":"looks_ok","top_signals":[]},"agree":false},
+{"i":28,"title":"Talent Management Process Manager","label":0,"snippet":"We have more than 1500+ job openings on our website and some of them are relevant to this job. Feel free to search on the website and apply directly.","a":{"risk":0.1319,"verdict":"looks_ok","top_signals":["Pressure to act fast"]},"b":{"risk":0.4555,"verdict":"check","top_signals":["Employer is vague","Pressure to act fast"]},"agree":false},
+{"i":29,"title":"Customer Service Associate","label":0,"snippet":"The Customer Service Associate will be based in Toronto, ON. The right candidate will be an integral part of our talented team, supporting our continued growth.","a":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"b":{"risk":0.0,"verdict":"looks_ok","top_signals":[]},"agree":true}
+];
+const VT = {likely_scam:"Likely scam", check:"Check first", looks_ok:"Looks OK"};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* Same regex patterns AND weights as scamscreen/rules.py + scoring.py, ported to JS.
+   Rule layer only — no model call. Weights already include the pipeline's rule_scale (0.6),
+   and the noisy-OR combine + thresholds match scoring.py's defaults exactly. */
+const RULE_CHECKS = [
+  ["Asks you to pay money", /(registration|processing|training|admin(?:istration)?|onboarding|security|refundable|verification)\s+(fee|deposit|charge)|pay\s+(for\s+)?(your\s+)?(own\s+)?(equipment|laptop|kit|uniform|background check|training|starter pack)|(send|transfer|deposit|pay)\s+(us\s+)?(\$|usd\s?|₹|rs\.?\s?|inr\s?|£|€)\s?\d+/i, 0.54],
+  ["Wants sensitive data up front", /social security|\bssn\b|bank account (number|details|info)|copy of (your )?(passport|id|driver|licen[cs]e)|aadhaar|aadhar|\bpan card\b|credit card (number|details)/i, 0.48],
+  ["Moves money for the 'employer'", /process(ing)? payments? (for|from|on behalf)|receive payments?|cash(ing)? (a )?che(ck|que)s?|forward (the )?(funds|money|payments?)|re-?ship|repackag|mystery shopper/i, 0.51],
+  ["Pay-per-task gig", /(like|subscribe|follow)(\s+and\s+\w+)?\s+(videos|channels|posts|pages)|rate\s+(products|apps|hotels|items)|boost\s+(ratings?|rankings?|sales|traffic)|(complete|finish|do)\s+(simple\s+|easy\s+)?(online\s+)?tasks?|commission per task/i, 0.48],
+  ["Pushes you off-platform", /whats\s?app|telegram|\bsignal\s+(app|number)|wechat|text\s+(us|me)\s+(at|on)|add\s+(us|me|our recruiter)\s+on/i, 0.33],
+  ["Pay too good to be true", /earn\s+(up\s+to\s+)?(\$|usd\s?|₹|rs\.?\s?|inr\s?|£|€)?\d[\d,]{2,}\s*(per|a|\/)\s*(day|hour|hr|week)|guaranteed\s+(income|earnings|salary)/i, 0.30],
+  ["Hired with no interview", /no\s+interview|without\s+(an\s+)?interview|hired\s+(instantly|immediately|on the spot)|no\s+experience\s+(needed|required|necessary)/i, 0.24],
+  ["Pressure to act fast", /urgent(ly)?\s+hiring|apply\s+(now|immediately|today)|limited\s+(slots|positions|spots|vacancies)|start\s+(today|immediately|tomorrow)/i, 0.18],
+];
+
+function checkPostingText(text){
+  const hits = [];
+  let survive = 1;
+  for(const [label, rx, weight] of RULE_CHECKS){
+    if(rx.test(text)){ hits.push(label); survive *= (1 - weight); }
+  }
+  const risk = 1 - survive;
+  const verdict = risk >= 0.60 ? "scam" : risk >= 0.30 ? "check" : "ok";
+  return {hits, risk, verdict};
+}
+const VERDICT_LABEL = {ok:"Looks OK", check:"Check first", scam:"Likely scam"};
+
+document.getElementById("trybtn").addEventListener("click", ()=>{
+  const text = document.getElementById("tryin").value.trim();
+  const out = document.getElementById("tryout");
+  out.classList.add("show");
+  if(!text){ out.innerHTML = `<p class="try-none" style="color:#D9A441">Paste some posting text first.</p>`; return; }
+  const {hits, risk, verdict} = checkPostingText(text);
+  const flags = hits.length
+    ? `<div class="try-flags">${hits.map(h=>`<span class="try-flag">${esc(h)}</span>`).join("")}</div>`
+    : `<p class="try-note" style="margin-top:0">No known scam wording matched.</p>`;
+  out.innerHTML = `
+    <p class="try-label">RULE-LAYER RESULT — NOT LAYA OR JEV</p>
+    <div class="try-verdict-row">
+      <span class="try-verdict ${verdict}">${VERDICT_LABEL[verdict]}</span>
+      <span class="try-risk">Risk ${Math.round(risk*100)}%, from rules alone</span>
+    </div>
+    ${flags}`;
+});
+document.getElementById("tryclear").addEventListener("click", ()=>{
+  document.getElementById("tryin").value = "";
+  document.getElementById("tryout").classList.remove("show");
+});
+
+let agreeFilter = "all", query = "";
+
+function filterCtrl(){
+  const counts = {all: ROWS.length, agree: ROWS.filter(r=>r.agree).length, disagree: ROWS.filter(r=>!r.agree).length};
+  const labels = {all:"All", agree:"Agreed", disagree:"Disagreed"};
+  document.getElementById("agree-filter").innerHTML = Object.keys(labels).map(k =>
+    `<button data-k="${k}" aria-pressed="${k===agreeFilter}">${labels[k]} ${counts[k]}</button>`).join("");
+}
+document.getElementById("agree-filter").addEventListener("click", e=>{
+  const k = e.target.dataset.k; if(!k) return;
+  agreeFilter = k; filterCtrl(); render();
+});
+document.getElementById("search").addEventListener("input", e=>{
+  query = e.target.value.trim().toLowerCase(); render();
+});
+
+function card(r){
+  const badge = r.agree ? `<span class="tagpill agree">agreed</span>` : `<span class="tagpill disagree">disagreed</span>`;
+  const sigList = s => s.top_signals.length
+    ? s.top_signals.map(x=>`<li>${esc(x)}</li>`).join("")
+    : "<li>No flags</li>";
+  return `<details class="case">
+    <summary class="case-head">
+      <span class="case-num">${String(r.i+1).padStart(2,"0")}</span>
+      <span class="case-title"><b>${esc(r.title)}</b><span>${r.label===1?"labelled scam":"labelled genuine"}</span></span>
+      ${badge}
+      <span class="chev">›</span>
+    </summary>
+    <div class="case-body">
+      <p class="snip">${esc(r.snippet)}</p>
+      <div class="cols">
+        <div class="col"><div class="name">LAYA</div><div class="verdict">${VT[r.a.verdict]}</div>
+          <div class="risk">Risk ${Math.round(r.a.risk*100)}%</div><ul>${sigList(r.a)}</ul></div>
+        <div class="col"><div class="name">JEV</div><div class="verdict">${VT[r.b.verdict]}</div>
+          <div class="risk">Risk ${Math.round(r.b.risk*100)}%</div><ul>${sigList(r.b)}</ul></div>
+      </div>
+    </div>
+  </details>`;
+}
+
+function render(){
+  let rows = ROWS;
+  if(agreeFilter !== "all") rows = rows.filter(r => agreeFilter === "agree" ? r.agree : !r.agree);
+  if(query) rows = rows.filter(r => r.title.toLowerCase().includes(query));
+  document.getElementById("ex-count").textContent = `${rows.length} of ${ROWS.length} postings`;
+  document.getElementById("cases").innerHTML = rows.length
+    ? rows.map(card).join("")
+    : `<div class="empty">No postings match that search.</div>`;
+}
+
+filterCtrl();
+render();
+</script>
+</body>
+</html>
